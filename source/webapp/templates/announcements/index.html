@@ -1,0 +1,12 @@
+{% extends 'base.html' %}
+
+{% block menu %}
+    {% if request.user.is_authenticated %}
+    <a class="nav-link" aria-current="page" href="{% url 'webapp:announcement_create' %}">Подать обьявление</a>
+    {% endif %}
+{% endblock %}
+
+{% block content %}
+    <h1>Announcement</h1>
+    {% include 'partial/announcement_list.html' %}
+{% endblock %}

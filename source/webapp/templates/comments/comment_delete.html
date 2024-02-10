@@ -12,6 +12,6 @@
     {% csrf_token %}
     <input type="submit" value="ДА"/>
 </form>
-    <a href="{% url 'webapp:article_view' pk=comment.article.pk %}">Нет</a>
+    <a href="{% url 'webapp:announcement_view' pk=comment.announcement.pk %}">Нет</a>
 
 {% endblock %}

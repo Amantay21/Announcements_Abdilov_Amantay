@@ -1,6 +1,6 @@
 from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
 from django.views.generic import CreateView, UpdateView, DeleteView
-from webapp.models import Comment, Article
+from webapp.models import Comment, Announcements
 from django.urls import reverse
 from django.shortcuts import get_object_or_404, redirect
 from webapp.forms import CommentForm
@@ -12,12 +12,12 @@ class CommentCreateView(LoginRequiredMixin, CreateView):
     form_class = CommentForm
 
     def form_valid(self, form):
-        article = get_object_or_404(Article, pk=self.kwargs.get('pk'))
+        announcement = get_object_or_404(Announcements, pk=self.kwargs.get('pk'))
         comment = form.save(commit=False)
-        comment.article = article
+        comment.announcement = announcement
         comment.author = self.request.user
         comment.save()
-        return redirect('webapp:article_view', pk=article.pk)
+        return redirect('webapp:announcement_view', pk=announcement.pk)
 
 
 class CommentUpdateView(PermissionRequiredMixin, UpdateView):
@@ -30,7 +30,7 @@ class CommentUpdateView(PermissionRequiredMixin, UpdateView):
         return super().has_permission() or self.request.user == self.get_object().author
 
     def get_success_url(self):
-        return reverse('webapp:article_view', kwargs={'pk': self.object.article.pk})
+        return reverse('webapp:announcement_view', kwargs={'pk': self.object.announcement.pk})
 
 
 class CommentDeleteView(PermissionRequiredMixin, DeleteView):
@@ -44,4 +44,4 @@ class CommentDeleteView(PermissionRequiredMixin, DeleteView):
         return self.delete(request, *args, **kwargs)
 
     def get_success_url(self):
-        return reverse('webapp:article_view', kwargs={'pk': self.object.article.pk})
+        return reverse('webapp:announcement_view', kwargs={'pk': self.object.announcement.pk})

@@ -42,7 +42,7 @@ class UserDetailView(LoginRequiredMixin, DetailView):
         page_number = self.request.GET.get('page', 1)
         page = paginator.get_page(page_number)
         kwargs['page_obj'] = page
-        kwargs['articles'] = page.object_list
+        kwargs['announcements'] = page.object_list
         kwargs['is_paginated'] = page.has_other_pages()
         return super().get_context_data(**kwargs)
 

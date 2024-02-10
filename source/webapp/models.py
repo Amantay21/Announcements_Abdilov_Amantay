@@ -1,11 +1,25 @@
 from django.contrib.auth import get_user_model
 from django.db import models
 from django.core.validators import MinLengthValidator
-from django.urls import reverse
+
+STATUS_CHOICES = (
+    ('moderation', 'На модерацию'),
+    ('published', 'Опубликовано'),
+    ('rejected', 'Отклонено'),
+    ('pending_deletion', 'На удаление'),
+)
+
+
+class Category(models.Model):
+    title = models.CharField(max_length=200, null=False, blank=False, verbose_name='Название')
+
+    def __str__(self):
+        return f'{self.id}. {self.title}'
 
 
 class AbstractModel(models.Model):
-    created_at = models.DateTimeField(verbose_name='Время создания', auto_now_add=True)
+    created = models.DateTimeField(auto_now_add=True, verbose_name='Время создания')
+    published_at = models.DateTimeField(blank=True, null=True, verbose_name='Время публикации')
     updated_at = models.DateTimeField(auto_now=True, verbose_name='Время изменения')
 
     class Meta:
@@ -17,35 +31,25 @@ class Announcements(AbstractModel):
     title = models.CharField(max_length=250, null=False, blank=False, validators=[MinLengthValidator(4), ],
                              verbose_name="Заголовок")
     description = models.TextField(max_length=3000, null=False, blank=False, verbose_name='Контент')
-    author = models.ForeignKey(get_user_model(), default=1, related_name='articles', on_delete=models.CASCADE,
+    author = models.ForeignKey(get_user_model(), default=1, related_name='announcements', on_delete=models.CASCADE,
                                verbose_name="Автор")
     category = models.ForeignKey('webapp.Category',
                                  on_delete=models.RESTRICT,
                                  verbose_name='Категория',
                                  related_name='categories',
                                  null=True)
-    tags = models.ManyToManyField('webapp.Tag', blank=True, related_name='articles', verbose_name='Теги')
+    amount = models.DecimalField(max_digits=7, decimal_places=2, null=False, blank=False, verbose_name="Цена")
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='moderation', verbose_name='Статус')
 
     def __str__(self):
         return f'{self.id}. {self.title}'
 
-    def get_absolute_url(self):
-        return reverse('webapp:article_view', kwargs={'pk': self.pk})
-
 
 class Comment(AbstractModel):
-    article = models.ForeignKey('webapp.Article', related_name='comments', on_delete=models.CASCADE,
-                                verbose_name='Статья')
+    announcements = models.ForeignKey('webapp.Announcements', related_name='comments', on_delete=models.CASCADE,
+                                      verbose_name='Обьявление')
     text = models.TextField(max_length=400, verbose_name='Комментарий')
-
-    author = models.ForeignKey(get_user_model(), default=1, related_name='comments', on_delete=models.CASCADE, verbose_name="Автор")
+    author = models.ForeignKey(get_user_model(), related_name='comments', on_delete=models.CASCADE)
 
     def __str__(self):
         return self.text[:20]
-
-
-class Tag(AbstractModel):
-    name = models.CharField(max_length=31, verbose_name='Тег')
-
-    def __str__(self):
-        return self.name
