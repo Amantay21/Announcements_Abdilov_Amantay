@@ -27,7 +27,11 @@ class RegisterView(CreateView):
             next_page = reverse('webapp:index')
 
         return next_page
+    def save(self, *args, **kwargs):
 
+        if not self.phone_number.startswith('+996') or not self.phone_number[1:].isdigit():
+            raise ValueError("Неверный формат номера телефона. Используйте формат +996 XXX XXX XXX")
+        super(Profile, self).save(*args, **kwargs)
 
 class UserDetailView(LoginRequiredMixin, DetailView):
     model = get_user_model()
@@ -37,8 +41,8 @@ class UserDetailView(LoginRequiredMixin, DetailView):
     paginate_related_orphans = 0
 
     def get_context_data(self, **kwargs):
-        articles = self.object.articles.order_by('-created_at')
-        paginator = Paginator(articles, self.paginate_related_by, orphans=self.paginate_related_orphans)
+        announcements = self.object.announcements.order_by('-created')
+        paginator = Paginator(announcements, self.paginate_related_by, orphans=self.paginate_related_orphans)
         page_number = self.request.GET.get('page', 1)
         page = paginator.get_page(page_number)
         kwargs['page_obj'] = page

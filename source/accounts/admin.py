@@ -8,7 +8,7 @@ User = get_user_model()
 
 class ProfileInline(admin.StackedInline):
     model = Profile
-    fields = ['birth_date', 'avatar']
+    fields = ['birth_date', 'avatar', 'phone_number']
 
 
 class ProfileAdmin(UserAdmin):

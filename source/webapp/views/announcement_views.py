@@ -25,7 +25,6 @@ class AnnouncementView(DetailView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['comments'] = self.object.comments.order_by('-created')
         return context
 
 
@@ -35,11 +34,11 @@ class AnnouncementCreateView(LoginRequiredMixin, CreateView):
     form_class = AnnouncementForm
 
     def form_valid(self, form):
-        self.announcement = form.save(commit=False)
-        self.announcement.author = self.request.user
-        self.announcement.save()
+        self.announcements = form.save(commit=False)
+        self.announcements.author = self.request.user
+        self.announcements.save()
         form.save_m2m()
-        return redirect('webapp:announcement_view', pk=self.announcement.pk)
+        return redirect('webapp:announcements_view', pk=self.announcements.pk)
 
 
 class AnnouncementUpdateView(PermissionRequiredMixin, UpdateView):
